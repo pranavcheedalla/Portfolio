@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pranav Cheedalla: AI and software engineer at UT Dallas. Voice agents, autonomous agents, simulation engines, and ML research.">
+<title>Pranav Cheedalla</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080c18'/%3E%3Ctext x='32' y='45' font-family='Impact,Arial Narrow,sans-serif' font-size='38' font-weight='900' text-anchor='middle' fill='%23ffb81c'%3E28%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="Pranav Cheedalla · AI and Software Engineer">
+<meta property="og:description" content="UT Dallas CS, Class of 2028. Real-time voice agents, autonomous agents, a 30M sims/sec Monte Carlo engine, and LSTM forecasting research.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: arena broadcast. Stat ticker on top, scoreboard header, segment bar as tabs, player cards and box scores below. Deliberately single dark theme (arena lights). */
+:root {
+  --arena: #080c18;
+  --panel: #10172a;
+  --panel-2: #172038;
+  --line: #26314f;
+  --ink: #eef1f8;
+  --soft: #d6dbea;
+  --muted: #8f9ab6;
+  --led: #ffb81c;
+  --led-ink: #141006;
+  --live: #ff4b3e;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --cond: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--arena); }
+body { color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--arena); }
+.inner { max-width: 1060px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--led); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--led); outline-offset: 3px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+.kicker { font: 600 13px var(--cond); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+/* Ticker */
+.ticker { background: var(--led); color: var(--led-ink); overflow: hidden; white-space: nowrap; font: 700 14px var(--cond); letter-spacing: .08em; text-transform: uppercase; }
+.ticker-track { display: inline-flex; animation: scroll 46s linear infinite; padding-block: 7px; }
+.ticker-track span { padding: 0 22px; }
+.ticker-track span::after { content: "◆"; margin-left: 44px; opacity: .45; font-size: 9px; vertical-align: middle; }
+@keyframes scroll { to { transform: translateX(-50%); } }
+
+/* Scoreboard header */
+.board { background: radial-gradient(ellipse 70% 120% at 85% 0%, rgba(255,184,28,.12), transparent 60%), linear-gradient(var(--arena), var(--panel)); border-bottom: 1px solid var(--line); }
+.board .inner { padding-block: 38px 30px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 32px; align-items: end; }
+.live { display: inline-flex; align-items: center; gap: 8px; font: 700 13px var(--cond); letter-spacing: .14em; color: var(--ink); }
+.live i { width: 9px; height: 9px; border-radius: 50%; background: var(--live); box-shadow: 0 0 10px var(--live); animation: blink 1.4s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+.board h1 { font: 900 clamp(54px, 11vw, 120px)/.86 var(--display); text-transform: uppercase; margin-top: 10px; }
+.board h1 span { color: var(--led); }
+.board p { margin: 14px 0 0; max-width: 56ch; font-size: 18px; color: #cfd5e6; }
+.jersey { text-align: center; border: 2px solid var(--line); border-radius: 14px; padding: 12px 22px 10px; background: var(--panel-2); }
+.jersey b { display: block; font: 900 84px/1 var(--display); color: var(--led); text-shadow: 0 0 22px rgba(255,184,28,.35); }
+.jersey span { font: 600 12px var(--cond); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+.statline { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--line); gap: 1px; }
+.statline div { background: var(--panel); padding: 10px 14px; display: grid; }
+.statline small { font: 600 12px var(--cond); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+.statline strong { font: 700 20px var(--cond); text-transform: uppercase; letter-spacing: .02em; }
+.actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font: 700 15px var(--cond); letter-spacing: .1em; text-transform: uppercase; text-decoration: none; padding: 10px 16px; border-radius: 6px; border: 1px solid var(--line); color: var(--ink); background: var(--panel-2); cursor: pointer; transition: border-color .15s, transform .15s; }
+.btn:hover { border-color: var(--led); transform: translateY(-1px); }
+.btn.primary { background: var(--led); color: var(--led-ink); border-color: var(--led); }
+@media (max-width: 600px) { .board .inner { grid-template-columns: 1fr; } .jersey { justify-self: start; } }
+
+/* Segment bar */
+.segbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(8,12,24,.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 0 0 auto; background: none; border: 0; color: var(--muted); cursor: pointer; font: 700 16px var(--cond); letter-spacing: .1em; text-transform: uppercase; padding: 16px 16px 13px; border-bottom: 3px solid transparent; transition: color .15s; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--led); border-bottom-color: var(--led); }
+.tab sup { font: 500 10px var(--mono); margin-left: 4px; color: var(--muted); }
+
+/* Panels */
+main .inner { padding-block: 32px 64px; }
+.panel { display: grid; gap: 20px; animation: in .3s ease both; }
+@keyframes in { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ticker-track, .panel, .live i, .card, .btn { animation: none; transition: none; } }
+.panel-head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 8px; }
+.panel-head h2 { font: 800 clamp(36px, 6vw, 54px)/.95 var(--display); text-transform: uppercase; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; min-width: 0; transition: transform .2s, border-color .2s; }
+.card:hover { transform: translateY(-3px); border-color: var(--led); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font: 600 13px var(--cond); letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; background: var(--panel-2); color: #c4cbe0; }
+
+/* Box score (experience) */
+.box { display: grid; grid-template-columns: minmax(0, 1fr) 210px; overflow: hidden; }
+.box-main { padding: 22px; display: grid; gap: 10px; align-content: start; }
+.box-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+.box-main h3 { font: 700 26px/1.1 var(--cond); text-transform: uppercase; letter-spacing: .02em; }
+.box-main h3 em { font-style: normal; color: var(--led); }
+.box-main ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; max-width: 68ch; color: var(--soft); }
+.box-stats { background: var(--panel-2); border-left: 1px solid var(--line); display: grid; align-content: center; }
+.box-stats div { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.box-stats div:last-child { border-bottom: 0; }
+.box-stats b { display: block; font: 800 34px/1 var(--display); color: var(--led); font-variant-numeric: tabular-nums; }
+.box-stats small { font: 600 12px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+@media (max-width: 680px) { .box { grid-template-columns: 1fr; } .box-stats { border-left: 0; border-top: 1px solid var(--line); grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } .box-stats div { border-bottom: 0; } }
+
+/* Player cards (projects) */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+.player { padding: 0; overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+.player-top { padding: 18px 18px 14px; background: linear-gradient(160deg, var(--panel-2), var(--panel)); border-bottom: 1px solid var(--line); display: grid; gap: 4px; position: relative; }
+.player-top .num { position: absolute; right: 14px; top: 6px; font: 900 64px/1 var(--display); color: rgba(255,184,28,.16); }
+.player-top h3 { font: 800 32px/1 var(--display); text-transform: uppercase; }
+.player-body { padding: 16px 18px 18px; display: grid; gap: 12px; align-content: start; }
+.player-body p { margin: 0; color: var(--soft); font-size: 15px; }
+.big { display: flex; gap: 18px; flex-wrap: wrap; }
+.big div b { display: block; font: 800 28px/1 var(--display); color: var(--led); }
+.big div small { font: 600 11px var(--cond); letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+.link { font: 700 14px var(--cond); letter-spacing: .1em; text-transform: uppercase; }
+.gauntlet { display: flex; flex-wrap: wrap; gap: 6px; }
+.gauntlet button { font: 600 12px var(--cond); letter-spacing: .05em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--line); color: var(--soft); background: transparent; cursor: pointer; transition: background .15s, color .15s; }
+.gauntlet button.gate { border-color: var(--live); color: var(--ink); }
+.gauntlet button.gate::before { content: "Gate · "; color: var(--live); }
+.gauntlet button[aria-pressed="true"] { background: var(--led); border-color: var(--led); color: var(--led-ink); }
+.gauntlet button[aria-pressed="true"]::before { color: var(--led-ink); }
+.gauntlet-desc { margin: 0; font-size: 14px; color: var(--soft); background: var(--panel-2); border-radius: 6px; padding: 10px 12px; min-height: 44px; }
+.gauntlet-desc b { color: var(--led); font-family: var(--cond); letter-spacing: .06em; text-transform: uppercase; margin-right: 6px; }
+
+/* Interactivity */
+.card { background-image: radial-gradient(420px circle at var(--mx, -999px) var(--my, -999px), rgba(255,184,28,.09), transparent 45%); }
+.progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--led); box-shadow: 0 0 8px var(--led); }
+.carousel-wrap { display: grid; gap: 14px; }
+.carousel { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding-bottom: 6px; scrollbar-width: none; cursor: grab; }
+.carousel::-webkit-scrollbar { display: none; }
+.carousel.dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; }
+.carousel > .player { flex: 0 0 min(380px, 86%); scroll-snap-align: start; }
+.carousel-ctrl { display: flex; align-items: center; gap: 10px; }
+.arrow-btn { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); font: 700 18px var(--body); cursor: pointer; }
+.arrow-btn:hover { border-color: var(--led); color: var(--led); }
+.dots { display: flex; gap: 8px; justify-content: center; }
+.dot { width: 34px; height: 5px; border-radius: 3px; border: 0; background: var(--line); cursor: pointer; padding: 0; transition: background .2s; }
+.dot[aria-current="true"] { background: var(--led); }
+.step { transition: border-color .25s, background .25s, transform .25s; }
+.step.on { border-color: var(--led); background: rgba(255,184,28,.14); transform: translateY(-3px); }
+.step.on strong { color: var(--led); }
+.run-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.play-log { font: 500 13px var(--mono); color: var(--led); min-height: 1.4em; margin: 0; }
+.roster button.tag { cursor: pointer; border: 1px solid transparent; transition: border-color .15s, background .15s; }
+.roster button.tag:hover { border-color: var(--led); }
+.roster button.tag[aria-pressed="true"] { background: var(--led); color: var(--led-ink); }
+.used { padding: 18px 20px; display: grid; gap: 10px; }
+.used-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.used-list button { font: 700 14px var(--cond); letter-spacing: .08em; text-transform: uppercase; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); cursor: pointer; }
+.used-list button:hover { border-color: var(--led); color: var(--led); }
+.used-list button small { color: var(--muted); margin-left: 6px; }
+.hint { font: 500 12px var(--mono); color: var(--muted); }
+
+/* Cursor follower (mouse and trackpad only) */
+.cursor-ring, .cursor-dot { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 50; border-radius: 50%; opacity: 0; transition: opacity .2s; will-change: transform; }
+.cursor-ring { width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 2px solid var(--led); display: grid; place-items: center; transition: opacity .2s, width .2s, height .2s, margin .2s, background .2s, border-color .2s; }
+.cursor-ring span { font: 700 10px var(--cond); letter-spacing: .12em; color: var(--led-ink); opacity: 0; transition: opacity .15s; }
+.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--led); box-shadow: 0 0 10px var(--led); }
+.cursor-on .cursor-ring, .cursor-on .cursor-dot { opacity: 1; }
+.cursor-ring.hover { width: 56px; height: 56px; margin: -28px 0 0 -28px; background: rgba(255,184,28,.12); }
+.cursor-ring.label { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: var(--led); }
+.cursor-ring.label span { opacity: 1; }
+.cursor-ring.press { border-color: var(--ink); }
+.spark { position: fixed; left: 0; top: 0; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--led); pointer-events: none; z-index: 49; animation: spark .55s ease-out forwards; }
+@keyframes spark { to { transform: translate(var(--sx), var(--sy)) scale(.2); opacity: 0; } }
+.board { position: relative; }
+.board::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(500px circle at var(--bx, -999px) var(--by, -999px), rgba(255,184,28,.13), transparent 50%); }
+.board .inner { position: relative; z-index: 1; }
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) { .cursor-ring, .cursor-dot, .spark { display: none; } }
+
+/* Now strip */
+.now { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font: 600 15px var(--cond); letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+.now b { color: var(--arena); background: var(--led); padding: 2px 8px; border-radius: 3px; letter-spacing: .12em; }
+.now span + span::before { content: "·"; margin-right: 14px; color: var(--muted); }
+
+/* Calibration chart */
+.chart-card { padding: 22px; display: grid; gap: 14px; }
+.chart-card h3 { font: 700 24px/1.1 var(--cond); text-transform: uppercase; }
+.chart-card p { margin: 0; color: var(--soft); max-width: 70ch; font-size: 15px; }
+.chart-box { overflow-x: auto; }
+.chart-box svg { display: block; width: 100%; min-width: 320px; height: auto; }
+.chart-box text { font-family: var(--cond); font-size: 13px; fill: var(--muted); letter-spacing: .04em; }
+.site-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.site-pick button { font: 700 13px var(--cond); letter-spacing: .08em; text-transform: uppercase; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel-2); color: var(--soft); cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+.site-pick button i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.site-pick button[aria-pressed="true"] { border-color: var(--led); color: var(--ink); }
+.site-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 420px; }
+.site-table th, .site-table td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.site-table th { font: 600 12px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.site-table th:first-child, .site-table td:first-child { text-align: left; }
+.site-table td.hit { color: var(--led); font-weight: 600; }
+
+/* Sim lab */
+.lab { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 760px) { .lab { grid-template-columns: 1fr; } }
+.controls { padding: 20px; display: grid; gap: 14px; align-content: start; }
+.field { display: grid; gap: 6px; }
+.field label, .field .flabel { display: flex; justify-content: space-between; font: 600 13px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.field output { color: var(--led); font-variant-numeric: tabular-nums; }
+.field input[type=range] { width: 100%; accent-color: var(--led); }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { flex: 1; font: 700 13px var(--cond); letter-spacing: .06em; text-transform: uppercase; padding: 8px 4px; border: 0; background: var(--panel-2); color: var(--soft); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--led); color: var(--led-ink); }
+.results { padding: 20px; display: grid; gap: 16px; align-content: start; }
+.res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.res { background: #05080f; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.res b { display: block; font: 900 34px/1 var(--display); color: var(--led); font-variant-numeric: tabular-nums; }
+.res small { font: 600 11px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.res.dim b { color: var(--ink); }
+#hist { width: 100%; height: 220px; display: block; background: #05080f; border: 1px solid var(--line); border-radius: 8px; }
+.lab-note { margin: 0; font-size: 14px; color: var(--muted); }
+
+/* Film room */
+.film { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.clip { padding: 20px; display: grid; gap: 10px; align-content: start; }
+.clip h3 { font: 700 23px/1.1 var(--cond); text-transform: uppercase; }
+.clip p { margin: 0; color: var(--soft); font-size: 15px; }
+.clip .why { border-left: 2px solid var(--led); padding-left: 12px; color: var(--ink); }
+.clip code { font: 500 12.5px var(--mono); color: var(--led); background: #05080f; border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; word-break: break-word; }
+
+/* Research scoreboard */
+.score { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.digit { background: #05080f; border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-align: center; }
+.digit b { display: block; font: 900 clamp(40px, 7vw, 56px)/1 var(--display); color: var(--led); text-shadow: 0 0 18px rgba(255,184,28,.4); font-variant-numeric: tabular-nums; }
+.digit small { font: 600 12px var(--cond); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.recap { padding: 22px; display: grid; gap: 12px; }
+.recap h3 { font: 700 26px/1.1 var(--cond); text-transform: uppercase; }
+.recap ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; max-width: 70ch; color: var(--soft); }
+
+/* Captain cards (leadership) */
+.caps { display: grid; gap: 14px; }
+.cap { padding: 20px 22px; display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 16px; align-items: start; }
+.badge { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--led); display: grid; place-items: center; font: 900 24px var(--display); color: var(--led); }
+.cap h3 { font: 700 24px/1.1 var(--cond); text-transform: uppercase; }
+.cap h3 em { font-style: normal; color: var(--muted); }
+.cap p { margin: 6px 0 0; color: var(--soft); max-width: 68ch; }
+
+/* Pregame */
+.matchup, .scout { padding: 22px; display: grid; gap: 14px; }
+.play { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.step { flex: 1 1 130px; min-width: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.step small { font: 600 11px var(--cond); letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+.step strong { display: block; font: 700 19px var(--cond); text-transform: uppercase; }
+.step.key { border-color: var(--led); }
+.step.key strong { color: var(--led); }
+.arrow { align-self: center; color: var(--led); font-weight: 700; }
+.highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.highlights button { text-align: left; padding: 16px; font: inherit; color: inherit; cursor: pointer; display: grid; gap: 4px; }
+.highlights b { font: 800 34px/1 var(--display); color: var(--led); }
+.highlights strong { font: 700 17px var(--cond); text-transform: uppercase; letter-spacing: .04em; }
+.highlights span { font-size: 14px; color: var(--muted); }
+.scout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 24px; }
+.scout-grid div { display: grid; gap: 4px; }
+.scout-grid strong { font: 700 19px var(--cond); text-transform: uppercase; }
+.scout-grid span { color: var(--soft); font-size: 15px; }
+
+.roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.roster .card { padding: 18px; display: grid; gap: 12px; align-content: start; }
+
+/* Contact */
+.contact { border-top: 1px solid var(--line); background: var(--panel); }
+.contact .inner { padding-block: 30px; display: grid; gap: 16px; }
+.contact h2 { font: 800 clamp(30px, 5vw, 44px)/1 var(--display); text-transform: uppercase; }
+.email { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.email code { font: 500 16px var(--mono); color: var(--ink); background: var(--arena); border: 1px solid var(--line); border-radius: 6px; padding: 9px 12px; user-select: all; word-break: break-all; }
+.copied { font: 600 13px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--led); }
+footer .inner { padding-block: 16px 30px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font: 600 14px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+</style>
+<style>
+html, body { margin: 0; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="cursor-ring" id="cursor-ring" aria-hidden="true"><span id="cursor-label"></span></div>
+<div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
+<div class="ticker" aria-label="Career stats ticker">
+  <div class="ticker-track">
+    <span>Dental voice agent: 18% less call time</span><span>Inventory agent: 10-scenario gauntlet, 100% correct escalation</span><span>PropSim: 30M+ simulations per second</span><span>PropSim: 70,000 player-games backtested</span><span>LSTM forecast: R² 0.954</span><span>Darling: 35% faster reporting</span><span>UT Dallas CS, Class of 2028</span>
+    <span aria-hidden="true">Dental voice agent: 18% less call time</span><span aria-hidden="true">Inventory agent: 10-scenario gauntlet, 100% correct escalation</span><span aria-hidden="true">PropSim: 30M+ simulations per second</span><span aria-hidden="true">PropSim: 70,000 player-games backtested</span><span aria-hidden="true">LSTM forecast: R² 0.954</span><span aria-hidden="true">Darling: 35% faster reporting</span><span aria-hidden="true">UT Dallas CS, Class of 2028</span>
+  </div>
+</div>
+
+<header class="board">
+  <div class="inner">
+    <div>
+      <span class="live"><i aria-hidden="true"></i>Now playing · UT Dallas</span>
+      <h1>Pranav<br><span>Cheedalla</span></h1>
+      <p>AI and software engineer building systems that perform under real game conditions: live phone calls, adversarial inputs, and noisy data.</p>
+    </div>
+    <div class="jersey" aria-label="Class of 2028"><b>28</b><span>Class of</span></div>
+    <div class="statline">
+      <div><small>Team</small><strong>UT Dallas</strong></div>
+      <div><small>Position</small><strong>AI / SWE</strong></div>
+      <div><small>Hometown</small><strong>Irving, TX</strong></div>
+      <div><small>Class</small><strong>May 2028</strong></div>
+    </div>
+    <div class="now"><b>Now</b><span>Open to Summer 2027 internships and 2027 co-ops</span><span>AI, ML, and backend roles</span></div>
+    <div class="actions">
+      <a class="btn primary" href="Pranav_Cheedalla_Resume.pdf" target="_blank" rel="noopener">View resume</a>
+      <a class="btn" href="https://github.com/pranavcheedalla" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn" href="https://www.linkedin.com/in/pranav-cheedalla-3b18a628a/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</header>
+
+<nav class="segbar" aria-label="Sections">
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-about" data-tab="about" aria-controls="about" aria-selected="true">Pregame</button>
+      <button class="tab" role="tab" id="tab-experience" data-tab="experience" aria-controls="experience" aria-selected="false">Experience<sup>3</sup></button>
+      <button class="tab" role="tab" id="tab-projects" data-tab="projects" aria-controls="projects" aria-selected="false">Projects<sup>7</sup></button>
+      <button class="tab" role="tab" id="tab-research" data-tab="research" aria-controls="research" aria-selected="false">Research<sup>1</sup></button>
+      <button class="tab" role="tab" id="tab-lab" data-tab="lab" aria-controls="lab" aria-selected="false">Sim Lab</button>
+      <button class="tab" role="tab" id="tab-film" data-tab="film" aria-controls="film" aria-selected="false">Film Room</button>
+      <button class="tab" role="tab" id="tab-leadership" data-tab="leadership" aria-controls="leadership" aria-selected="false">Leadership<sup>4</sup></button>
+      <button class="tab" role="tab" id="tab-toolkit" data-tab="toolkit" aria-controls="toolkit" aria-selected="false">Roster</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="inner">
+
+    <section class="panel" id="about" role="tabpanel" aria-labelledby="tab-about">
+      <div class="panel-head"><h2>Season highlights</h2><span class="kicker">Tap a stat to see the full story</span></div>
+      <div class="highlights">
+        <button class="card" data-go="projects"><b>18%</b><strong>Call time cut</strong><span>Bluebonnet dental voice agent</span></button>
+        <button class="card" data-go="projects"><b>10/10</b><strong>Gauntlet scenarios</strong><span>Crestline inventory agent, 100% correct escalation</span></button>
+        <button class="card" data-go="projects"><b>30M+</b><strong>Sims per second</strong><span>PropSim C++ Monte Carlo engine</span></button>
+        <button class="card" data-go="research"><b>0.954</b><strong>Best-site R²</strong><span>LSTM streamflow research</span></button>
+      </div>
+      <div class="card matchup">
+        <div class="panel-head"><span class="kicker">The play call · Bluebonnet dental voice agent</span><a class="link" href="https://github.com/pranavcheedalla/bluebonnet-dental-agent" target="_blank" rel="noopener">See the code →</a></div>
+        <div class="run-row"><button class="btn primary" id="run-play" type="button">▶ Run the play</button><p class="play-log" id="play-log" aria-live="polite">Press play to trace a call through the agent.</p></div>
+        <div class="play" id="play">
+          <div class="step"><small>Snap</small><strong>Whisper STT</strong></div><span class="arrow" aria-hidden="true">→</span>
+          <div class="step"><small>Hard rules first</small><strong>Keyword gate</strong></div><span class="arrow" aria-hidden="true">→</span>
+          <div class="step key"><small>Read the defense</small><strong>Haiku router</strong></div><span class="arrow" aria-hidden="true">→</span>
+          <div class="step"><small>Run the play</small><strong>Sonnet + RAG</strong></div><span class="arrow" aria-hidden="true">→</span>
+          <div class="step"><small>Finish</small><strong>Streamed voice</strong></div>
+        </div>
+        <p style="margin:0;color:var(--muted);font-size:15px">Emergencies, clinical questions, price quotes, and PHI requests hit a deterministic keyword gate before any model runs. Claude Haiku then calls Handle, Route, or Clarify, and any error falls back to a human. Handled calls stream from Claude Sonnet sentence by sentence, and callers can barge in mid-reply.</p>
+      </div>
+      <div class="card scout">
+        <span class="kicker">Scouting report</span>
+        <div class="scout-grid">
+          <div><strong>University of Texas at Dallas</strong><span>B.S. Computer Science, expected May 2028</span></div>
+          <div><strong>Scholarship</strong><span>Erik Jonsson Academic Success Scholarship recipient</span></div>
+          <div><strong>Coursework</strong><span>Software Engineering, Machine Learning, Artificial Intelligence, Computer Architecture, Data Structures</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="experience" role="tabpanel" aria-labelledby="tab-experience" hidden>
+      <div class="panel-head"><h2>Box scores</h2><span class="kicker">Experience</span></div>
+      <article class="card box">
+        <div class="box-main">
+          <div class="box-top"><span class="kicker">Forward Deployed AI Intern</span><span class="kicker">June 2026 to Aug 2026</span></div>
+          <h3><em>Kairos</em> Technologies</h3>
+          <ul>
+            <li>Engineered a real-time AI voice agent for a dental front desk using Claude Sonnet and Haiku, Whisper speech-to-text, and an offline RAG pipeline.</li>
+            <li>Built an agentic inventory system with autonomous planning, tool use, and error recovery, tested against a 10-scenario adversarial suite.</li>
+            <li>Engineered an ingestion and retrieval pipeline with a custom web crawler, Voyage AI embeddings in a Chroma vector store, and citation-enforced prompting that keeps answers grounded in retrieved context.</li>
+          </ul>
+          <div class="tags"><span class="tag">Claude</span><span class="tag">Whisper</span><span class="tag">RAG</span><span class="tag">Chroma</span><span class="tag">Voyage AI</span><span class="tag">Agents</span></div>
+          <div class="tags"><a class="link" href="https://github.com/pranavcheedalla/bluebonnet-dental-agent" target="_blank" rel="noopener">Voice agent code →</a><a class="link" href="https://github.com/pranavcheedalla/crestline-inventory-agent" target="_blank" rel="noopener" style="margin-left:14px">Inventory agent code →</a></div>
+        </div>
+        <div class="box-stats">
+          <div><b>18%</b><small>Less staff call time</small></div>
+          <div><b>100%</b><small>Correct escalation</small></div>
+          <div><b>10</b><small>Adversarial scenarios</small></div>
+        </div>
+      </article>
+      <article class="card box">
+        <div class="box-main">
+          <div class="box-top"><span class="kicker">Software Developer Intern</span><span class="kicker">Aug 2025 to Dec 2025</span></div>
+          <h3><em>Tomorrow's Leaders</em> Today</h3>
+          <ul>
+            <li>Developed a full-stack web app with Next.js, Node.js, SQLite, and Prisma, including an automated grant application that tracks grants applied for and received.</li>
+            <li>Designed an Application History section showing past grant applications and their details, built with React and Tailwind from Figma designs.</li>
+          </ul>
+          <div class="tags"><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Prisma</span><span class="tag">SQLite</span><span class="tag">Tailwind</span><span class="tag">Figma</span></div>
+        </div>
+        <div class="box-stats">
+          <div><b>45%</b><small>Efficiency gain</small></div>
+          <div><b>31%</b><small>Reliability and accessibility</small></div>
+        </div>
+      </article>
+      <article class="card box">
+        <div class="box-main">
+          <div class="box-top"><span class="kicker">Software Engineering Intern</span><span class="kicker">June 2024 to Aug 2024</span></div>
+          <h3><em>Darling</em> Ingredients</h3>
+          <ul>
+            <li>Built an internal Python data pipeline that collects, cleans, and processes supply chain data from multiple sources, replacing a manual workflow.</li>
+            <li>Wrote and optimized SQL queries across large internal databases for frequently accessed records.</li>
+          </ul>
+          <div class="tags"><span class="tag">Python</span><span class="tag">SQL</span><span class="tag">Data pipelines</span></div>
+        </div>
+        <div class="box-stats">
+          <div><b>35%</b><small>Faster reporting</small></div>
+          <div><b>30%</b><small>Faster queries</small></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel" id="projects" role="tabpanel" aria-labelledby="tab-projects" hidden>
+      <div class="panel-head"><h2>Player cards</h2><div class="carousel-ctrl"><span class="hint">Swipe or drag</span><button class="arrow-btn" id="prev" type="button" aria-label="Previous project">←</button><button class="arrow-btn" id="next" type="button" aria-label="Next project">→</button></div></div>
+      <div class="carousel-wrap">
+      <div class="carousel" id="carousel" tabindex="0" aria-label="Projects">
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">01</span><span class="kicker">Voice AI · Kairos</span><h3>Bluebonnet Dental Agent</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>18%</b><small>Less call time</small></div><div><b>3</b><small>Router calls</small></div><div><b>Top 3</b><small>RAG passages</small></div></div>
+            <p>"Lily," a real-time front-desk voice agent for a dental office. Whisper transcribes the caller, a keyword gate catches emergencies, clinical questions, price quotes, PHI, and injection attempts, and Claude Haiku decides to handle, route, or clarify. Handled questions get grounded Claude Sonnet answers streamed sentence by sentence with barge-in. Every call writes a JSON value receipt with per-turn latency and outcome.</p>
+            <div class="tags"><span class="tag">Python</span><span class="tag">Claude Sonnet</span><span class="tag">Claude Haiku</span><span class="tag">Whisper</span><span class="tag">RAG</span></div>
+            <a class="link" href="https://github.com/pranavcheedalla/bluebonnet-dental-agent" target="_blank" rel="noopener">View on GitHub →</a>
+          </div>
+        </article>
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">02</span><span class="kicker">Agentic AI · Kairos</span><h3>Crestline Inventory Agent</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>10</b><small>Gauntlet scenarios</small></div><div><b>3</b><small>Hard gates</small></div><div><b>100%</b><small>Correct escalation</small></div></div>
+            <p>Autonomous agent that reviews an outdoor retailer's inventory, weighs days of stock against supplier lead times, and drafts purchase orders. A custom gauntlet throws real failure modes at it, and any hard-gate failure marks the build unshippable.</p>
+            <div class="gauntlet" aria-label="Gauntlet scenarios">
+              <button type="button" data-g="G01" data-d="Full inventory review on clean data, ending with drafted purchase orders.">Clean run</button><button type="button" class="gate" data-g="G02" data-d="The sales velocity API returns zero for every SKU. The quiet disaster: the agent has to notice the data is wrong instead of concluding nothing needs reordering.">Zero-velocity API</button><button type="button" data-g="G03" data-d="Inventory records arrive malformed, and the agent has to handle them without crashing or guessing.">Malformed data</button><button type="button" data-g="G04" data-d="A sales spike changes the reorder math mid-run, so the agent has to replan.">Mid-run sales spike</button><button type="button" data-g="G05" data-d="The velocity API fails temporarily, testing retry and error recovery.">API retry</button><button type="button" data-g="G06" data-d="A supplier has been discontinued, and the agent must escalate honestly rather than order from it.">Discontinued supplier</button><button type="button" class="gate" data-g="G07" data-d="Submitting a purchase order must stay behind a human approval gate.">Gated PO submit</button><button type="button" class="gate" data-g="G08" data-d="A prompt injection is hidden inside a product name field, and the agent must not follow it.">Injection in product name</button><button type="button" data-g="G09" data-d="The goal is ambiguous, so the agent should ask for clarification instead of guessing.">Ambiguous goal</button><button type="button" data-g="G10" data-d="A full catalog review, testing that the agent finishes instead of looping.">Loop termination</button>
+            </div>
+            <p class="gauntlet-desc" id="gauntlet-desc" aria-live="polite"><b>Tap a scenario</b>to see what it throws at the agent.</p>
+            <div class="tags"><span class="tag">Python</span><span class="tag">Claude</span><span class="tag">Tool use</span><span class="tag">Evals</span></div>
+            <a class="link" href="https://github.com/pranavcheedalla/crestline-inventory-agent" target="_blank" rel="noopener">View on GitHub →</a>
+          </div>
+        </article>
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">03</span><span class="kicker">Simulation · July to Sep 2026</span><h3>PropSim</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>30M+</b><small>Sims / sec</small></div><div><b>650</b><small>Players</small></div><div><b>70K</b><small>Player-games</small></div></div>
+            <p>Full-stack NBA player-prop and moneyline predictor. A C++ Monte Carlo engine, bound to Python with pybind11, samples each player's scoring distribution adjusted for opponent defense, pace, home or away, and rest. FastAPI serves it with live ESPN odds and injury reports to a React dashboard with six stat categories, trend charts, a bet tracker with ROI, and a three-season backtester.</p>
+            <div class="tags"><span class="tag">C++</span><span class="tag">pybind11</span><span class="tag">FastAPI</span><span class="tag">React</span><span class="tag">SQLite</span><span class="tag">Docker</span><span class="tag">Render</span></div>
+            <a class="link" href="https://github.com/pranavcheedalla/propsim" target="_blank" rel="noopener">View on GitHub →</a>
+          </div>
+        </article>
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">04</span><span class="kicker">ACM Projects · Feb to May 2026</span><h3>CarCare</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>OCR</b><small>Scanning</small></div><div><b>AI</b><small>Chatbot</small></div><div><b>3D</b><small>Vehicle models</small></div></div>
+            <p>Vehicle maintenance app built with React, JavaScript, Spring Boot, and Firebase Authentication. Added OCR scanning and an OpenAI chatbot for issue detection, plus Google Maps and interactive 3D models for visual diagnostics and nearby repair shops.</p>
+            <div class="tags"><span class="tag">React</span><span class="tag">Spring Boot</span><span class="tag">Firebase</span><span class="tag">OpenAI API</span><span class="tag">Google Maps</span></div>
+            <a class="link" href="https://github.com/acm-projects/CarCare" target="_blank" rel="noopener">View on GitHub →</a>
+          </div>
+        </article>
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">05</span><span class="kicker">Kappa Theta Pi · Team project</span><h3>Sports2You</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>3</b><small>Clients: web, mobile, API</small></div><div><b>14</b><small>Mobile screens</small></div><div><b>5</b><small>UTD courts</small></div></div>
+            <p>Court reservation app for UT Dallas students across the Activity Center and Rec West. A six-step booking flow enforces real court rules, like player minimums for half-court basketball and soccer. Students can create public or private pickup games, let others join, and review completed games. Runs on a React and Vite web app, a React Native (Expo) mobile app, and an Express API on MongoDB Atlas with JWT auth.</p>
+            <div class="tags"><span class="tag">React</span><span class="tag">React Native</span><span class="tag">Expo</span><span class="tag">Express</span><span class="tag">MongoDB</span><span class="tag">JWT</span></div>
+            <a class="link" href="https://github.com/AyaanK077/Sports2You-KTP-" target="_blank" rel="noopener">View on GitHub →</a>
+          </div>
+        </article>
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">06</span><span class="kicker">HackUTD 2025 · Nov 2025</span><h3>AutoMate</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>4</b><small>Pages built</small></div><div><b>2</b><small>Finance and lease modes</small></div><div><b>3</b><small>Lenders compared</small></div></div>
+            <p>Car comparison web app for shopping a Toyota lineup, built by a team of four at HackUTD. Built the car filter page, side-by-side compare page, favorites, and a finance and lease calculator that adjusts rates by credit score, compares lender offers, and charts the cost breakdown. The team added AI natural-language search and a chat assistant.</p>
+            <div class="tags"><span class="tag">Next.js</span><span class="tag">React</span><span class="tag">Prisma</span><span class="tag">Tailwind</span><span class="tag">shadcn/ui</span><span class="tag">Recharts</span></div>
+            <div class="tags"><a class="link" href="https://www.youtube.com/watch?v=-ONIwjBU-Y8" target="_blank" rel="noopener">Watch demo →</a><a class="link" href="https://github.com/shreyaBalaji1/HackUTD-Project" target="_blank" rel="noopener" style="margin-left:14px">View on GitHub →</a></div>
+          </div>
+        </article>
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">07</span><span class="kicker">HackAI 2026 · Mar 2026</span><h3>NovaLabs</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>6</b><small>Student tools</small></div><div><b>2</b><small>Route modes, incl. accessible</small></div><div><b>4</b><small>Help-desk categories</small></div></div>
+            <p>All-in-one UT Dallas student hub built at HackAI. A campus map computes shortest walking routes with Dijkstra over a building graph, with walking-time estimates and an accessible-route option. "Who Do I Ask" uses OpenAI to route a student's question to the right office: academic, financial, housing, or tech. Also includes a professor picker built on UTD Nebula course data, a degree planner, and a schedule view.</p>
+            <div class="tags"><span class="tag">React</span><span class="tag">TypeScript</span><span class="tag">Vite</span><span class="tag">Leaflet</span><span class="tag">OpenAI API</span><span class="tag">Nebula API</span></div>
+            <a class="link" href="https://github.com/Mxs8513/NovaLabs" target="_blank" rel="noopener">View on GitHub →</a>
+          </div>
+        </article>
+      </div>
+      <div class="dots" id="dots"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="research" role="tabpanel" aria-labelledby="tab-research" hidden>
+      <div class="panel-head"><h2>Final score</h2><span class="kicker">URAP · UT Dallas · Feb to Aug 2026</span></div>
+      <div class="score">
+        <div class="digit"><b>0.954</b><small>R² at best site</small></div>
+        <div class="digit"><b>91.8%</b><small>Coverage at 95% target</small></div>
+        <div class="digit"><b>5</b><small>Real watersheds</small></div>
+        <div class="digit"><b>4</b><small>Coverage targets, 70 to 95%</small></div>
+      </div>
+      <article class="card recap">
+        <span class="kicker">Game recap · Undergraduate Research Assistant Program</span>
+        <h3>Streamflow forecasting with calibrated uncertainty</h3>
+        <ul>
+          <li>Preprocessed and engineered features from SNOTEL and NOAA weather data across five watersheds, then trained a two-layer LSTM with Huber loss, gradient clipping, and log transforms to stabilize training on heavy-tailed discharge data.</li>
+          <li>Coupled the LSTM with Dual Adaptive Conformal Prediction to produce calibrated uncertainty intervals. Hit near-target coverage on three of five sites and held 91.8% coverage at the 95% target even on the weakest base model (R² 0.405).</li>
+        </ul>
+        <div class="tags"><span class="tag">PyTorch</span><span class="tag">Pandas</span><span class="tag">scikit-learn</span><span class="tag">Walk-forward validation</span><span class="tag">Conformal prediction</span><span class="tag">NOAA</span><span class="tag">SNOTEL</span></div>
+        <a class="link" href="https://github.com/pranavcheedalla/LSTM-Research" target="_blank" rel="noopener">View on GitHub →</a>
+      </article>
+      <article class="card chart-card">
+        <span class="kicker">Instant replay · data from LSTM_DACP_Summary.csv</span>
+        <h3>Does the uncertainty band tell the truth?</h3>
+        <p>Each line is one watershed. The dashed diagonal is perfect calibration: a 90% interval should contain the true flow 90% of the time. Points close to the diagonal mean the conformal bands are honest.</p>
+        <div class="site-pick" id="site-pick"></div>
+        <div class="chart-box"><svg id="calib" viewBox="0 0 560 360" role="img" aria-label="Target versus achieved interval coverage for five watersheds"></svg></div>
+        <div class="chart-box"><table class="site-table" id="site-table"><thead><tr><th>Target</th><th>Achieved</th><th>Gap</th><th>Avg interval width</th></tr></thead><tbody></tbody></table></div>
+      </article>
+    </section>
+
+    <section class="panel" id="lab" role="tabpanel" aria-labelledby="tab-lab" hidden>
+      <div class="panel-head"><h2>Sim Lab</h2><span class="kicker">A mini PropSim that runs in your browser</span></div>
+      <div class="lab">
+        <div class="card controls">
+          <div class="field"><label for="s-avg">Season average (pts) <output id="o-avg">24.5</output></label><input type="range" id="s-avg" min="5" max="40" step="0.5" value="24.5"></div>
+          <div class="field"><label for="s-sd">Game-to-game spread <output id="o-sd">6.0</output></label><input type="range" id="s-sd" min="1" max="12" step="0.5" value="6"></div>
+          <div class="field"><label for="s-line">Sportsbook line <output id="o-line">25.5</output></label><input type="range" id="s-line" min="5" max="45" step="0.5" value="25.5"></div>
+          <div class="field"><span class="flabel">Opponent defense</span><div class="seg" data-key="def"><button type="button" data-v="0.92">Elite</button><button type="button" data-v="1" aria-pressed="true">Average</button><button type="button" data-v="1.07">Weak</button></div></div>
+          <div class="field"><span class="flabel">Pace</span><div class="seg" data-key="pace"><button type="button" data-v="0.96">Slow</button><button type="button" data-v="1" aria-pressed="true">Average</button><button type="button" data-v="1.05">Fast</button></div></div>
+          <div class="field"><span class="flabel">Venue</span><div class="seg" data-key="venue"><button type="button" data-v="1.02" aria-pressed="true">Home</button><button type="button" data-v="0.98">Away</button></div></div>
+          <div class="field"><span class="flabel">Rest</span><div class="seg" data-key="rest"><button type="button" data-v="0.96">Back-to-back</button><button type="button" data-v="1" aria-pressed="true">Normal</button><button type="button" data-v="1.02">Extra</button></div></div>
+          <div class="field"><span class="flabel">Simulations</span><div class="seg" data-key="n"><button type="button" data-v="10000">10K</button><button type="button" data-v="100000" aria-pressed="true">100K</button><button type="button" data-v="1000000">1M</button></div></div>
+          <button class="btn primary" id="sim-run" type="button">▶ Simulate game</button>
+        </div>
+        <div class="card results">
+          <div class="res-grid">
+            <div class="res"><b id="r-over">–</b><small>Chance of over</small></div>
+            <div class="res"><b id="r-odds">–</b><small>Fair odds (over)</small></div>
+            <div class="res dim"><b id="r-mean">–</b><small>Adjusted mean</small></div>
+            <div class="res dim"><b id="r-speed">–</b><small>Sims / sec here</small></div>
+          </div>
+          <canvas id="hist" aria-label="Histogram of simulated points with the line marked"></canvas>
+          <p class="lab-note" id="lab-note">Simplified JavaScript version of the PropSim idea: sample a player's scoring distribution, adjust for matchup, and count how often the result clears the line. The real engine is C++ via pybind11 and runs about 30 million simulations per second.</p>
+          <a class="link" href="https://github.com/pranavcheedalla/propsim" target="_blank" rel="noopener">See the real engine →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="film" role="tabpanel" aria-labelledby="tab-film" hidden>
+      <div class="panel-head"><h2>Film Room</h2><span class="kicker">Design calls, broken down from the code</span></div>
+      <div class="film">
+        <article class="card clip">
+          <span class="kicker">Bluebonnet · safety</span>
+          <h3>Rules run before the model</h3>
+          <p>Emergencies, clinical questions, price quotes, coverage promises, PHI, and injection attempts are matched by deterministic keyword rules before any LLM call.</p>
+          <p class="why">The riskiest calls never depend on a model getting it right. They route to staff with full confidence, at zero latency and zero token cost.</p>
+          <code>router.py · hard_route_rules</code>
+        </article>
+        <article class="card clip">
+          <span class="kicker">Bluebonnet · failure modes</span>
+          <h3>When in doubt, hand it to a human</h3>
+          <p>The Haiku router is told to prefer ROUTE when a case is ambiguous, and any API error or parse failure falls back to ROUTE with confidence 0.</p>
+          <p class="why">For a dental office, a wrong answer costs more than a transfer. The system fails toward the safe outcome.</p>
+          <code>router.py · classify()</code>
+        </article>
+        <article class="card clip">
+          <span class="kicker">Bluebonnet · latency</span>
+          <h3>Speak the first sentence first</h3>
+          <p>Sonnet's reply is streamed and cut at sentence boundaries, and each sentence goes to speech as soon as it's complete. If the caller barges in, the unspoken buffer is dropped.</p>
+          <p class="why">Callers hear a response almost immediately instead of waiting for the full answer, and the agent stops talking when interrupted, like a person would.</p>
+          <code>agent.py · _sentence_end()</code>
+        </article>
+        <article class="card clip">
+          <span class="kicker">Bluebonnet · measurement</span>
+          <h3>Every call leaves a receipt</h3>
+          <p>Each call writes a JSON value receipt with per-turn action, reason, latency, outcome, and handoff context for staff.</p>
+          <p class="why">Impact like the 18% drop in call-handling time is measured from logs, not estimated.</p>
+          <code>receipt.py · ValueReceipt</code>
+        </article>
+        <article class="card clip">
+          <span class="kicker">Crestline · evals</span>
+          <h3>Hard gates block the ship</h3>
+          <p>A 10-scenario gauntlet tests the agent against bad data, API failures, replanning, and injection. Three scenarios are hard gates, and failing any one marks the build unshippable.</p>
+          <p class="why">The worst failure is a quiet one: an API returning zero sales looks like "no reorders needed." The gauntlet makes that a release blocker.</p>
+          <code>run_gauntlet.py · HARD_GATES</code>
+        </article>
+        <article class="card clip">
+          <span class="kicker">PropSim · deployment</span>
+          <h3>Ship the data with the app</h3>
+          <p>The backend builds from a committed SQLite snapshot because stats.nba.com blocks many cloud IP ranges, and live ESPN odds and injuries are cached for 15 minutes.</p>
+          <p class="why">The deployed app works reliably on Render without depending on a data source that refuses cloud traffic.</p>
+          <code>propsim · data/ + backend/</code>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="leadership" role="tabpanel" aria-labelledby="tab-leadership" hidden>
+      <div class="panel-head"><h2>Captain's log</h2><span class="kicker">Leadership</span></div>
+      <div class="caps">
+        <article class="card cap"><div class="badge" aria-hidden="true">C</div><div><h3>Director of Industry Relations <em>· Kappa Theta Pi · May 2026 to present</em></h3><p>Leads the chapter's industry relations: building company partnerships, securing guest speakers, sponsorships, and internship opportunities, and working with executive leadership on professional development programming for all brothers.</p></div></article>
+        <article class="card cap"><div class="badge" aria-hidden="true">PM</div><div><h3>Project Manager, Splitting <em>· Kappa Theta Pi</em></h3><p>Leads the team building Splitting, a roommate compatibility web app that matches students on living habits and preferences. Runs planning and coordination across a React front end, Java Spring Boot back end, and Firebase.</p><div class="tags" style="margin-top:10px"><span class="tag">React</span><span class="tag">Spring Boot</span><span class="tag">Firebase</span></div></div></article>
+        <article class="card cap"><div class="badge" aria-hidden="true">PM</div><div><h3>Project Manager, SafeBite <em>· Team of 4 · In progress</em></h3><p>Leads a team of first-time app builders on SafeBite, a food safety app that scans a barcode and rates the food avoid, caution, or safe against your allergies and medications. Set up the repo, the architecture, and the shared modules everyone builds on: Open Food Facts barcode lookup, photo barcode reading, a food–drug interaction list, and emergency keyword rules that run before the AI symptom checker. Split the app into one tab per person and wrote step-by-step tasks for each, with a branch workflow so nobody breaks each other's code. Also owns the Food Scanner tab.</p><div class="tags" style="margin-top:10px"><span class="tag">Python</span><span class="tag">Streamlit</span><span class="tag">Open Food Facts API</span><span class="tag">Claude</span></div><div class="tags" style="margin-top:10px"><a class="link" href="https://github.com/pranavcheedalla/safebite" target="_blank" rel="noopener">View on GitHub →</a></div></div></article>
+        <article class="card cap"><div class="badge" aria-hidden="true">PM</div><div><h3>Project Manager <em>· AIMD · Aug to Dec 2025</em></h3><p>Managed a student project team through a full semester build.</p></div></article>
+      </div>
+    </section>
+
+    <section class="panel" id="toolkit" role="tabpanel" aria-labelledby="tab-toolkit" hidden>
+      <div class="panel-head"><h2>The roster</h2><span class="kicker">Toolkit</span></div>
+      <div class="roster">
+        <div class="card"><span class="kicker">Languages</span><div class="tags" data-skills="Java,Python,C++,C,SQL,JavaScript,TypeScript"></div></div>
+        <div class="card"><span class="kicker">AI / ML</span><div class="tags" data-skills="PyTorch,NumPy,RAG,LLM agents,Chroma,Whisper,Conformal prediction"></div></div>
+        <div class="card"><span class="kicker">Web</span><div class="tags" data-skills="React,Next.js,Node.js,Spring Boot,FastAPI,Tailwind CSS,REST APIs"></div></div>
+        <div class="card"><span class="kicker">Tools</span><div class="tags" data-skills="Git,Docker,Firebase,Prisma,SQLite,Figma"></div></div>
+      </div>
+      <div class="card used">
+        <span class="kicker" id="used-title">Scouting a skill · tap any tag above</span>
+        <div class="used-list" id="used-list"><span class="hint">Pick a skill to see every project and role it shows up in.</span></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<section class="contact" aria-labelledby="contact-title">
+  <div class="inner">
+    <span class="kicker">Post-game interview</span>
+    <h2 id="contact-title">Get in touch</h2>
+    <div class="email">
+      <code id="email-text">pranavcheedalla@gmail.com</code>
+      <button class="btn" id="copy-email" type="button">Copy email</button>
+      <span class="copied" id="copy-status" aria-live="polite"></span>
+    </div>
+    <div class="actions">
+      <a class="btn primary" href="Pranav_Cheedalla_Resume.pdf" target="_blank" rel="noopener">View resume</a>
+      <a class="btn" href="https://github.com/pranavcheedalla" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn" href="https://www.linkedin.com/in/pranav-cheedalla-3b18a628a/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="inner">
+    <span>Pranav Cheedalla · #28 · UT Dallas</span>
+    <a href="https://github.com/pranavcheedalla" target="_blank" rel="noopener">github.com/pranavcheedalla</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.panel'));
+  function show(name, scroll) {
+    if (!document.getElementById(name)) name = 'about';
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].dataset.tab === name;
+      tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+      if (on) tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    for (var j = 0; j < panels.length; j++) panels[j].hidden = panels[j].id !== name;
+    if (ready) countUp(document.getElementById(name));
+    if (ready && name === 'projects') updateDots();
+    if (ready && name === 'lab') setTimeout(runSim, 30);
+    if (scroll) document.querySelector('.segbar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].addEventListener('click', function (e) { show(e.currentTarget.dataset.tab, false); });
+  }
+  var jumps = document.querySelectorAll('[data-go]');
+  for (var k = 0; k < jumps.length; k++) {
+    jumps[k].addEventListener('click', function (e) { show(e.currentTarget.dataset.go, true); });
+  }
+  show((location.hash || '').replace('#', '') || 'about', false);
+
+  var copyBtn = document.getElementById('copy-email');
+  var status = document.getElementById('copy-status');
+  var emailEl = document.getElementById('email-text');
+  copyBtn.addEventListener('click', function () {
+    var text = emailEl.textContent;
+    function fallback() {
+      var range = document.createRange();
+      range.selectNodeContents(emailEl);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      status.textContent = 'Selected, press Ctrl+C to copy';
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { status.textContent = 'Copied'; }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Keyboard arrows on the tab bar */
+  document.querySelector('.tabs').addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var idx = 0;
+    for (var i = 0; i < tabs.length; i++) if (tabs[i] === document.activeElement) idx = i;
+    var next = (idx + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+    tabs[next].focus();
+    show(tabs[next].dataset.tab, false);
+  });
+
+  /* Scroll progress */
+  var bar = document.getElementById('progress');
+  function onScroll() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+    bar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* Spotlight that follows the cursor on cards */
+  document.addEventListener('pointermove', function (e) {
+    var card = e.target.closest ? e.target.closest('.card') : null;
+    if (!card) return;
+    var r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+
+  /* Count-up for stat numbers when a tab opens */
+  function countUp(panel) {
+    if (!panel || reduce) return;
+    var nums = panel.querySelectorAll('.highlights b, .box-stats b, .big b, .digit b');
+    for (var i = 0; i < nums.length; i++) {
+      (function (el) {
+        var final = el.dataset.final || el.textContent;
+        el.dataset.final = final;
+        var m = final.match(/^([^0-9]*)([0-9]+(?:\.[0-9]+)?)(.*)$/);
+        if (!m) return;
+        var target = parseFloat(m[2]);
+        var decimals = (m[2].split('.')[1] || '').length;
+        var start = null;
+        function frame(t) {
+          if (start === null) start = t;
+          var p = Math.min((t - start) / 700, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = m[1] + (target * eased).toFixed(decimals) + m[3];
+          if (p < 1) requestAnimationFrame(frame); else el.textContent = final;
+        }
+        requestAnimationFrame(frame);
+      })(nums[i]);
+    }
+  }
+
+  /* Run the play: light up each pipeline step */
+  var steps = document.querySelectorAll('#play .step');
+  var log = document.getElementById('play-log');
+  var lines = [
+    'Caller: "Can I book a cleaning next Tuesday?" Whisper transcribes it.',
+    'Keyword gate: no emergency, PHI, or pricing terms. Passes through.',
+    'Haiku router: HANDLE. Enough info to resolve without staff.',
+    'Sonnet answers using the top 3 knowledge base passages.',
+    'Reply streams sentence by sentence. Receipt logged with latency.'
+  ];
+  var playing = false;
+  document.getElementById('run-play').addEventListener('click', function () {
+    if (playing) return;
+    playing = true;
+    var i = 0;
+    function tick() {
+      for (var k = 0; k < steps.length; k++) steps[k].classList.toggle('on', k === i);
+      if (i < steps.length) {
+        log.textContent = lines[i];
+        i++;
+        setTimeout(tick, reduce ? 300 : 1300);
+      } else {
+        log.textContent = 'Call handled. Anything risky would have routed to a human instead.';
+        playing = false;
+      }
+    }
+    tick();
+  });
+
+  /* Project carousel: arrows, dots, drag */
+  var car = document.getElementById('carousel');
+  var items = car.querySelectorAll('.player');
+  var dots = document.getElementById('dots');
+  for (var d = 0; d < items.length; d++) {
+    (function (n) {
+      var b = document.createElement('button');
+      b.className = 'dot';
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Go to project ' + (n + 1));
+      b.addEventListener('click', function () { car.scrollTo({ left: items[n].offsetLeft - car.offsetLeft, behavior: 'smooth' }); });
+      dots.appendChild(b);
+    })(d);
+  }
+  function current() {
+    var best = 0;
+    var bestDist = Infinity;
+    for (var i = 0; i < items.length; i++) {
+      var dist = Math.abs(items[i].offsetLeft - car.offsetLeft - car.scrollLeft);
+      if (dist < bestDist) { bestDist = dist; best = i; }
+    }
+    return best;
+  }
+  function updateDots() {
+    var c = current();
+    var all = dots.children;
+    for (var i = 0; i < all.length; i++) all[i].setAttribute('aria-current', i === c ? 'true' : 'false');
+  }
+  car.addEventListener('scroll', updateDots, { passive: true });
+  function go(dir) {
+    var c = Math.max(0, Math.min(items.length - 1, current() + dir));
+    car.scrollTo({ left: items[c].offsetLeft - car.offsetLeft, behavior: 'smooth' });
+  }
+  document.getElementById('prev').addEventListener('click', function () { go(-1); });
+  document.getElementById('next').addEventListener('click', function () { go(1); });
+  car.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+  });
+  var down = false, startX = 0, startLeft = 0, moved = false;
+  car.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'mouse' || e.target.closest('a, button')) return;
+    down = true; moved = false; startX = e.clientX; startLeft = car.scrollLeft;
+    car.classList.add('dragging');
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    if (Math.abs(e.clientX - startX) > 4) moved = true;
+    car.scrollLeft = startLeft - (e.clientX - startX);
+  });
+  window.addEventListener('pointerup', function () {
+    if (!down) return;
+    down = false;
+    car.classList.remove('dragging');
+    go(0);
+  });
+  updateDots();
+
+  /* Gauntlet scenarios */
+  var gBtns = document.querySelectorAll('.gauntlet button');
+  var gDesc = document.getElementById('gauntlet-desc');
+  for (var g = 0; g < gBtns.length; g++) {
+    gBtns[g].setAttribute('aria-pressed', 'false');
+    gBtns[g].addEventListener('click', function (e) {
+      var btn = e.currentTarget;
+      for (var k = 0; k < gBtns.length; k++) gBtns[k].setAttribute('aria-pressed', gBtns[k] === btn ? 'true' : 'false');
+      gDesc.innerHTML = '';
+      var b = document.createElement('b');
+      b.textContent = btn.dataset.g + (btn.classList.contains('gate') ? ' · hard gate' : '');
+      gDesc.appendChild(b);
+      gDesc.appendChild(document.createTextNode(btn.dataset.d));
+    });
+  }
+
+  /* Skill scout */
+  var usedBy = {
+    'Python': [['Bluebonnet Dental Agent', 'projects'], ['Crestline Inventory Agent', 'projects'], ['SafeBite', 'leadership'], ['LSTM research', 'research'], ['Darling Ingredients', 'experience'], ['PropSim pipeline', 'projects']],
+    'C++': [['PropSim engine', 'projects']],
+    'Java': [['CarCare', 'projects'], ['Splitting', 'leadership']],
+    'SQL': [['Darling Ingredients', 'experience'], ['PropSim', 'projects'], ['Tomorrow\'s Leaders Today', 'experience']],
+    'JavaScript': [['PropSim dashboard', 'projects'], ['CarCare', 'projects'], ['Tomorrow\'s Leaders Today', 'experience']],
+    'PyTorch': [['LSTM research', 'research']],
+    'NumPy': [['LSTM research', 'research']],
+    'RAG': [['Bluebonnet Dental Agent', 'projects'], ['Kairos retrieval pipeline', 'experience']],
+    'LLM agents': [['Bluebonnet Dental Agent', 'projects'], ['Crestline Inventory Agent', 'projects']],
+    'Chroma': [['Kairos retrieval pipeline', 'experience']],
+    'Whisper': [['Bluebonnet Dental Agent', 'projects']],
+    'Conformal prediction': [['LSTM research', 'research']],
+    'React': [['PropSim', 'projects'], ['CarCare', 'projects'], ['Tomorrow\'s Leaders Today', 'experience'], ['Splitting', 'leadership']],
+    'Next.js': [['AutoMate', 'projects'], ['Tomorrow\'s Leaders Today', 'experience']],
+    'Node.js': [['Tomorrow\'s Leaders Today', 'experience']],
+    'Spring Boot': [['CarCare', 'projects'], ['Splitting', 'leadership']],
+    'FastAPI': [['PropSim', 'projects']],
+    'Tailwind CSS': [['AutoMate', 'projects'], ['Tomorrow\'s Leaders Today', 'experience']],
+    'REST APIs': [['PropSim', 'projects'], ['CarCare', 'projects']],
+    'Docker': [['PropSim', 'projects']],
+    'Firebase': [['CarCare', 'projects'], ['Splitting', 'leadership']],
+    'Prisma': [['AutoMate', 'projects'], ['Tomorrow\'s Leaders Today', 'experience']],
+    'SQLite': [['PropSim', 'projects'], ['Tomorrow\'s Leaders Today', 'experience']],
+    'Figma': [['Tomorrow\'s Leaders Today', 'experience']]
+  };
+  var tabLabel = { projects: 'Projects', experience: 'Experience', research: 'Research', leadership: 'Leadership' };
+  var usedTitle = document.getElementById('used-title');
+  var usedList = document.getElementById('used-list');
+  var skillBtns = [];
+  var groups = document.querySelectorAll('[data-skills]');
+  for (var s = 0; s < groups.length; s++) {
+    var names = groups[s].dataset.skills.split(',');
+    for (var n = 0; n < names.length; n++) {
+      var sb = document.createElement('button');
+      sb.type = 'button';
+      sb.className = 'tag';
+      sb.textContent = names[n];
+      sb.setAttribute('aria-pressed', 'false');
+      groups[s].appendChild(sb);
+      skillBtns.push(sb);
+    }
+  }
+  for (var q = 0; q < skillBtns.length; q++) {
+    skillBtns[q].addEventListener('click', function (e) {
+      var btn = e.currentTarget;
+      var skill = btn.textContent;
+      for (var k = 0; k < skillBtns.length; k++) skillBtns[k].setAttribute('aria-pressed', skillBtns[k] === btn ? 'true' : 'false');
+      usedTitle.textContent = 'Scouting · ' + skill;
+      usedList.innerHTML = '';
+      var hits = usedBy[skill];
+      if (!hits) {
+        var none = document.createElement('span');
+        none.className = 'hint';
+        none.textContent = 'Used across coursework and day-to-day development.';
+        usedList.appendChild(none);
+        return;
+      }
+      for (var h = 0; h < hits.length; h++) {
+        (function (hit) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = hit[0];
+          var sm = document.createElement('small');
+          sm.textContent = tabLabel[hit[1]];
+          b.appendChild(sm);
+          b.addEventListener('click', function () { show(hit[1], true); });
+          usedList.appendChild(b);
+        })(hits[h]);
+      }
+    });
+  }
+
+  /* Calibration chart */
+  var calib = {
+    'Bunchgrass Meadow': { c: '#ffb81c', pts: [[70, 70.9, 365.23], [80, 80.5, 441.52], [90, 88.6, 533.31], [95, 92.7, 599.08]] },
+    'Easy Pass': { c: '#5ec8ff', pts: [[70, 72.3, 14.65], [80, 79.5, 19.45], [90, 87.7, 24.36], [95, 91.4, 31.06]] },
+    'Paradise': { c: '#ff7a8a', pts: [[70, 54.1, 1.77], [80, 68.2, 2.48], [90, 83.6, 3.76], [95, 89.5, 5.55]] },
+    'Swift Creek': { c: '#6fe0b0', pts: [[70, 68.6, 1.77], [80, 79.5, 2.26], [90, 86.8, 4.1], [95, 91.8, 9.91]] },
+    'Touchet': { c: '#b49cff', pts: [[70, 64.5, 9.91], [80, 75.9, 12.53], [90, 87.3, 18.4], [95, 91.8, 27.69]] }
+  };
+  var svgNS = 'http://www.w3.org/2000/svg';
+  var svg = document.getElementById('calib');
+  var pick = document.getElementById('site-pick');
+  var tbody = document.querySelector('#site-table tbody');
+  var L = 56, R = 540, T = 20, B = 310, lo = 50, hi = 100;
+  function sx(v) { return L + (v - lo) / (hi - lo) * (R - L); }
+  function sy(v) { return B - (v - lo) / (hi - lo) * (B - T); }
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(svgNS, tag);
+    for (var a in attrs) e.setAttribute(a, attrs[a]);
+    if (text !== undefined) e.textContent = text;
+    svg.appendChild(e);
+    return e;
+  }
+  var selected = 'Swift Creek';
+  function drawChart() {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var ticks = [50, 60, 70, 80, 90, 100];
+    for (var i = 0; i < ticks.length; i++) {
+      el('line', { x1: L, x2: R, y1: sy(ticks[i]), y2: sy(ticks[i]), stroke: '#26314f', 'stroke-width': 1 });
+      el('text', { x: L - 10, y: sy(ticks[i]) + 4, 'text-anchor': 'end' }, ticks[i] + '%');
+      el('text', { x: sx(ticks[i]), y: B + 20, 'text-anchor': 'middle' }, ticks[i] + '%');
+    }
+    el('text', { x: (L + R) / 2, y: B + 44, 'text-anchor': 'middle' }, 'TARGET COVERAGE');
+    el('text', { x: 14, y: (T + B) / 2, 'text-anchor': 'middle', transform: 'rotate(-90 14 ' + (T + B) / 2 + ')' }, 'ACHIEVED');
+    el('line', { x1: sx(50), y1: sy(50), x2: sx(100), y2: sy(100), stroke: '#8f9ab6', 'stroke-width': 1.5, 'stroke-dasharray': '5 5' });
+    el('text', { x: sx(97), y: sy(99) - 4, 'text-anchor': 'end' }, 'PERFECT');
+    var order = Object.keys(calib).filter(function (k) { return k !== selected; }).concat([selected]);
+    for (var s = 0; s < order.length; s++) {
+      var name = order[s];
+      var site = calib[name];
+      var on = name === selected;
+      var d = '';
+      for (var p = 0; p < site.pts.length; p++) d += (p ? 'L' : 'M') + sx(site.pts[p][0]) + ' ' + sy(site.pts[p][1]);
+      el('path', { d: d, fill: 'none', stroke: site.c, 'stroke-width': on ? 3 : 1.5, opacity: on ? 1 : 0.3 });
+      for (var q = 0; q < site.pts.length; q++) {
+        var c = el('circle', { cx: sx(site.pts[q][0]), cy: sy(site.pts[q][1]), r: on ? 5.5 : 3.5, fill: site.c, stroke: '#080c18', 'stroke-width': 1.5, opacity: on ? 1 : 0.35 });
+        var tt = document.createElementNS(svgNS, 'title');
+        tt.textContent = name + ': ' + site.pts[q][1] + '% achieved at ' + site.pts[q][0] + '% target';
+        c.appendChild(tt);
+      }
+    }
+    var last = calib[selected].pts[3];
+    el('text', { x: sx(last[0]) - 8, y: sy(last[1]) + 20, 'text-anchor': 'end', fill: calib[selected].c, style: 'fill:' + calib[selected].c + ';font-weight:700' }, selected.toUpperCase());
+    tbody.innerHTML = '';
+    var pts = calib[selected].pts;
+    for (var r = 0; r < pts.length; r++) {
+      var tr = document.createElement('tr');
+      var gap = (pts[r][1] - pts[r][0]).toFixed(1);
+      var cells = [pts[r][0] + '%', pts[r][1] + '%', (gap > 0 ? '+' : '') + gap, String(pts[r][2])];
+      for (var cI = 0; cI < cells.length; cI++) {
+        var td = document.createElement('td');
+        td.textContent = cells[cI];
+        if (cI === 2 && Math.abs(pts[r][1] - pts[r][0]) <= 3.5) td.className = 'hit';
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    var btns = pick.querySelectorAll('button');
+    for (var b = 0; b < btns.length; b++) btns[b].setAttribute('aria-pressed', btns[b].dataset.site === selected ? 'true' : 'false');
+  }
+  Object.keys(calib).forEach(function (name) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.site = name;
+    var dot = document.createElement('i');
+    dot.style.background = calib[name].c;
+    b.appendChild(dot);
+    b.appendChild(document.createTextNode(name));
+    b.addEventListener('click', function () { selected = name; drawChart(); });
+    pick.appendChild(b);
+  });
+  drawChart();
+
+  /* Sim lab */
+  var sim = { def: 1, pace: 1, venue: 1.02, rest: 1, n: 100000 };
+  var ids = [['s-avg', 'o-avg'], ['s-sd', 'o-sd'], ['s-line', 'o-line']];
+  for (var ii = 0; ii < ids.length; ii++) {
+    (function (pair) {
+      var input = document.getElementById(pair[0]);
+      var out = document.getElementById(pair[1]);
+      input.addEventListener('input', function () { out.textContent = parseFloat(input.value).toFixed(1); });
+      input.addEventListener('change', runSim);
+    })(ids[ii]);
+  }
+  var segs = document.querySelectorAll('.seg');
+  for (var sg = 0; sg < segs.length; sg++) {
+    (function (seg) {
+      var bs = seg.querySelectorAll('button');
+      for (var k = 0; k < bs.length; k++) {
+        if (!bs[k].hasAttribute('aria-pressed')) bs[k].setAttribute('aria-pressed', 'false');
+        bs[k].addEventListener('click', function (e) {
+          for (var j = 0; j < bs.length; j++) bs[j].setAttribute('aria-pressed', bs[j] === e.currentTarget ? 'true' : 'false');
+          sim[seg.dataset.key] = parseFloat(e.currentTarget.dataset.v);
+          runSim();
+        });
+      }
+    })(segs[sg]);
+  }
+  document.getElementById('sim-run').addEventListener('click', runSim);
+  function fmtOdds(p) {
+    if (p <= 0.001) return '+99900';
+    if (p >= 0.999) return '-99900';
+    if (p > 0.5) return '-' + Math.round(100 * p / (1 - p));
+    return '+' + Math.round(100 * (1 - p) / p);
+  }
+  function runSim() {
+    var avg = parseFloat(document.getElementById('s-avg').value);
+    var sd = parseFloat(document.getElementById('s-sd').value);
+    var line = parseFloat(document.getElementById('s-line').value);
+    var mean = avg * sim.def * sim.pace * sim.venue * sim.rest;
+    var n = sim.n;
+    var bins = 40;
+    var minV = 0;
+    var maxV = Math.max(60, mean + 4 * sd);
+    var width = (maxV - minV) / bins;
+    var counts = new Array(bins);
+    for (var i = 0; i < bins; i++) counts[i] = 0;
+    var over = 0;
+    var t0 = performance.now();
+    for (var s = 0; s < n; s += 2) {
+      var u1 = Math.random() || 1e-9;
+      var u2 = Math.random();
+      var mag = Math.sqrt(-2 * Math.log(u1));
+      var a = Math.max(0, mean + sd * mag * Math.cos(6.283185307179586 * u2));
+      var b = Math.max(0, mean + sd * mag * Math.sin(6.283185307179586 * u2));
+      if (a > line) over++;
+      if (b > line) over++;
+      var ia = Math.min(bins - 1, Math.floor(a / width));
+      var ib = Math.min(bins - 1, Math.floor(b / width));
+      counts[ia]++;
+      counts[ib]++;
+    }
+    var ms = Math.max(performance.now() - t0, 0.5);
+    var p = over / n;
+    document.getElementById('r-over').textContent = (p * 100).toFixed(1) + '%';
+    document.getElementById('r-odds').textContent = fmtOdds(p);
+    document.getElementById('r-mean').textContent = mean.toFixed(1);
+    var rate = n / (ms / 1000);
+    document.getElementById('r-speed').textContent = rate >= 1e6 ? (rate / 1e6).toFixed(1) + 'M' : Math.round(rate / 1000) + 'K';
+    drawHist(counts, width, line, maxV);
+  }
+  function drawHist(counts, width, line, maxV) {
+    var cv = document.getElementById('hist');
+    var dpr = window.devicePixelRatio || 1;
+    var w = cv.clientWidth || 600;
+    var h = cv.clientHeight || 220;
+    cv.width = w * dpr;
+    cv.height = h * dpr;
+    var ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+    var pad = { l: 12, r: 12, t: 16, b: 26 };
+    var peak = 0;
+    for (var i = 0; i < counts.length; i++) if (counts[i] > peak) peak = counts[i];
+    var bw = (w - pad.l - pad.r) / counts.length;
+    for (var j = 0; j < counts.length; j++) {
+      var x = pad.l + j * bw;
+      var bh = peak ? (counts[j] / peak) * (h - pad.t - pad.b) : 0;
+      var center = (j + 0.5) * width;
+      ctx.fillStyle = center > line ? '#ffb81c' : '#3a4670';
+      ctx.fillRect(x + 1, h - pad.b - bh, Math.max(bw - 2, 1), bh);
+    }
+    var lx = pad.l + (line / maxV) * (w - pad.l - pad.r);
+    ctx.strokeStyle = '#eef1f8';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(lx, pad.t - 6);
+    ctx.lineTo(lx, h - pad.b);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#eef1f8';
+    ctx.font = '600 12px "Barlow Condensed", sans-serif';
+    ctx.textAlign = lx > w - 80 ? 'right' : 'left';
+    ctx.fillText('LINE ' + line.toFixed(1), lx + (lx > w - 80 ? -6 : 6), pad.t + 4);
+    ctx.fillStyle = '#8f9ab6';
+    ctx.textAlign = 'left';
+    ctx.fillText('0', pad.l, h - 8);
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxV) + ' PTS', w - pad.r, h - 8);
+  }
+  window.addEventListener('resize', function () { if (!document.getElementById('lab').hidden) runSim(); });
+  if (!document.getElementById('lab').hidden) runSim();
+
+  /* Cursor follower */
+  var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (fine && !reduce) {
+    var ring = document.getElementById('cursor-ring');
+    var dotEl = document.getElementById('cursor-dot');
+    var label = document.getElementById('cursor-label');
+    var board = document.querySelector('.board');
+    var mx = -100, my = -100, rx = -100, ry = -100;
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      mx = e.clientX; my = e.clientY;
+      document.body.classList.add('cursor-on');
+      dotEl.style.transform = 'translate(' + mx + 'px,' + my + 'px)';
+      var t = e.target.closest ? e.target : null;
+      var labelText = '';
+      if (t && t.closest('#carousel') && !t.closest('a, button')) labelText = 'DRAG';
+      else if (t && t.closest('#run-play, #sim-run')) labelText = 'PLAY';
+      else if (t && t.closest('a[href]')) labelText = 'OPEN';
+      var interactive = t && t.closest('a, button, input, [role=tab]');
+      ring.classList.toggle('label', !!labelText);
+      ring.classList.toggle('hover', !labelText && !!interactive);
+      label.textContent = labelText;
+      var br = board.getBoundingClientRect();
+      if (my >= br.top && my <= br.bottom) {
+        board.style.setProperty('--bx', (mx - br.left) + 'px');
+        board.style.setProperty('--by', (my - br.top) + 'px');
+      }
+    });
+    document.addEventListener('pointerleave', function () { document.body.classList.remove('cursor-on'); });
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      ring.classList.add('press');
+      for (var i = 0; i < 8; i++) {
+        var sp = document.createElement('span');
+        sp.className = 'spark';
+        var ang = (Math.PI * 2 * i) / 8;
+        sp.style.left = e.clientX + 'px';
+        sp.style.top = e.clientY + 'px';
+        sp.style.setProperty('--sx', Math.cos(ang) * 26 + 'px');
+        sp.style.setProperty('--sy', Math.sin(ang) * 26 + 'px');
+        document.body.appendChild(sp);
+        setTimeout(function (node) { return function () { node.remove(); }; }(sp), 600);
+      }
+    });
+    document.addEventListener('pointerup', function () { ring.classList.remove('press'); });
+    (function loop() {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      ring.style.transform = 'translate(' + rx + 'px,' + ry + 'px)';
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  var ready = true;
+})();
+</script>
+
+</body>
+</html>
