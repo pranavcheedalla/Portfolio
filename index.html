@@ -285,8 +285,8 @@ img { max-width: 100%; }
 <div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
 <div class="ticker" aria-label="Career stats ticker">
   <div class="ticker-track">
-    <span>Dental voice agent: 18% less call time</span><span>Inventory agent: 10-scenario gauntlet, 100% correct escalation</span><span>PropSim: 30M+ simulations per second</span><span>PropSim: 70,000 player-games backtested</span><span>LSTM forecast: R² 0.954</span><span>Darling: 35% faster reporting</span><span>UT Dallas CS, Class of 2028</span>
-    <span aria-hidden="true">Dental voice agent: 18% less call time</span><span aria-hidden="true">Inventory agent: 10-scenario gauntlet, 100% correct escalation</span><span aria-hidden="true">PropSim: 30M+ simulations per second</span><span aria-hidden="true">PropSim: 70,000 player-games backtested</span><span aria-hidden="true">LSTM forecast: R² 0.954</span><span aria-hidden="true">Darling: 35% faster reporting</span><span aria-hidden="true">UT Dallas CS, Class of 2028</span>
+    <span>Dental voice agent: 18% less call time</span><span>Inventory agent: 10-scenario gauntlet, 100% correct escalation</span><span>PropSim: 30M+ simulations per second</span><span>PropSim: 70,000 player-games backtested</span><span>NorthBound: COBOL to Python, verified against real output</span><span>LSTM forecast: R² 0.954</span><span>Darling: 35% faster reporting</span><span>UT Dallas CS, Class of 2028</span>
+    <span aria-hidden="true">Dental voice agent: 18% less call time</span><span aria-hidden="true">Inventory agent: 10-scenario gauntlet, 100% correct escalation</span><span aria-hidden="true">PropSim: 30M+ simulations per second</span><span aria-hidden="true">PropSim: 70,000 player-games backtested</span><span aria-hidden="true">NorthBound: COBOL to Python, verified against real output</span><span aria-hidden="true">LSTM forecast: R² 0.954</span><span aria-hidden="true">Darling: 35% faster reporting</span><span aria-hidden="true">UT Dallas CS, Class of 2028</span>
   </div>
 </div>
 
@@ -319,7 +319,7 @@ img { max-width: 100%; }
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-about" data-tab="about" aria-controls="about" aria-selected="true">Pregame</button>
       <button class="tab" role="tab" id="tab-experience" data-tab="experience" aria-controls="experience" aria-selected="false">Experience<sup>3</sup></button>
-      <button class="tab" role="tab" id="tab-projects" data-tab="projects" aria-controls="projects" aria-selected="false">Projects<sup>7</sup></button>
+      <button class="tab" role="tab" id="tab-projects" data-tab="projects" aria-controls="projects" aria-selected="false">Projects<sup>8</sup></button>
       <button class="tab" role="tab" id="tab-research" data-tab="research" aria-controls="research" aria-selected="false">Research<sup>1</sup></button>
       <button class="tab" role="tab" id="tab-lab" data-tab="lab" aria-controls="lab" aria-selected="false">Sim Lab</button>
       <button class="tab" role="tab" id="tab-film" data-tab="film" aria-controls="film" aria-selected="false">Film Room</button>
@@ -419,7 +419,16 @@ img { max-width: 100%; }
       <div class="carousel-wrap">
       <div class="carousel" id="carousel" tabindex="0" aria-label="Projects">
         <article class="card player">
-          <div class="player-top"><span class="num" aria-hidden="true">01</span><span class="kicker">Voice AI · Kairos</span><h3>Bluebonnet Dental Agent</h3></div>
+          <div class="player-top"><span class="num" aria-hidden="true">01</span><span class="kicker">HackUTD 2026 · Nov 2026</span><h3>NorthBound</h3></div>
+          <div class="player-body">
+            <div class="big"><div><b>6</b><small>Pipeline stages</small></div><div><b>3</b><small>Rewrite attempts</small></div><div><b>15</b><small>Recorded cases per program</small></div></div>
+            <p>Multi-agent system that modernizes legacy COBOL into Python, built by a team of four. NVIDIA Nemotron agents read the COBOL, write a spec, and rewrite it, but a rewrite is only accepted once its output matches the original program's real recorded output string for string. Built the rewrite agent, the unit-test writer, and the divergence explainer that tells the rewrite agent exactly why a case failed, plus the Nemotron client with model fallback chains and a sandbox for self-checks.</p>
+            <div class="tags"><span class="tag">Python</span><span class="tag">NVIDIA Nemotron</span><span class="tag">LangGraph</span><span class="tag">GnuCOBOL</span><span class="tag">pytest</span></div>
+            <a class="link" href="https://github.com/pranavcheedalla/NorthBound" target="_blank" rel="noopener">View on GitHub →</a>
+          </div>
+        </article>
+        <article class="card player">
+          <div class="player-top"><span class="num" aria-hidden="true">02</span><span class="kicker">Voice AI · Kairos</span><h3>Bluebonnet Dental Agent</h3></div>
           <div class="player-body">
             <div class="big"><div><b>18%</b><small>Less call time</small></div><div><b>3</b><small>Router calls</small></div><div><b>Top 3</b><small>RAG passages</small></div></div>
             <p>"Lily," a real-time front-desk voice agent for a dental office. Whisper transcribes the caller, a keyword gate catches emergencies, clinical questions, price quotes, PHI, and injection attempts, and Claude Haiku decides to handle, route, or clarify. Handled questions get grounded Claude Sonnet answers streamed sentence by sentence with barge-in. Every call writes a JSON value receipt with per-turn latency and outcome.</p>
@@ -428,7 +437,7 @@ img { max-width: 100%; }
           </div>
         </article>
         <article class="card player">
-          <div class="player-top"><span class="num" aria-hidden="true">02</span><span class="kicker">Agentic AI · Kairos</span><h3>Crestline Inventory Agent</h3></div>
+          <div class="player-top"><span class="num" aria-hidden="true">03</span><span class="kicker">Agentic AI · Kairos</span><h3>Crestline Inventory Agent</h3></div>
           <div class="player-body">
             <div class="big"><div><b>10</b><small>Gauntlet scenarios</small></div><div><b>3</b><small>Hard gates</small></div><div><b>100%</b><small>Correct escalation</small></div></div>
             <p>Autonomous agent that reviews an outdoor retailer's inventory, weighs days of stock against supplier lead times, and drafts purchase orders. A custom gauntlet throws real failure modes at it, and any hard-gate failure marks the build unshippable.</p>
@@ -441,7 +450,7 @@ img { max-width: 100%; }
           </div>
         </article>
         <article class="card player">
-          <div class="player-top"><span class="num" aria-hidden="true">03</span><span class="kicker">Simulation · July to Sep 2026</span><h3>PropSim</h3></div>
+          <div class="player-top"><span class="num" aria-hidden="true">04</span><span class="kicker">Simulation · July to Sep 2026</span><h3>PropSim</h3></div>
           <div class="player-body">
             <div class="big"><div><b>30M+</b><small>Sims / sec</small></div><div><b>650</b><small>Players</small></div><div><b>70K</b><small>Player-games</small></div></div>
             <p>Full-stack NBA player-prop and moneyline predictor. A C++ Monte Carlo engine, bound to Python with pybind11, samples each player's scoring distribution adjusted for opponent defense, pace, home or away, and rest. FastAPI serves it with live ESPN odds and injury reports to a React dashboard with six stat categories, trend charts, a bet tracker with ROI, and a three-season backtester.</p>
@@ -450,7 +459,7 @@ img { max-width: 100%; }
           </div>
         </article>
         <article class="card player">
-          <div class="player-top"><span class="num" aria-hidden="true">04</span><span class="kicker">ACM Projects · Feb to May 2026</span><h3>CarCare</h3></div>
+          <div class="player-top"><span class="num" aria-hidden="true">05</span><span class="kicker">ACM Projects · Feb to May 2026</span><h3>CarCare</h3></div>
           <div class="player-body">
             <div class="big"><div><b>OCR</b><small>Scanning</small></div><div><b>AI</b><small>Chatbot</small></div><div><b>3D</b><small>Vehicle models</small></div></div>
             <p>Vehicle maintenance app built with React, JavaScript, Spring Boot, and Firebase Authentication. Added OCR scanning and an OpenAI chatbot for issue detection, plus Google Maps and interactive 3D models for visual diagnostics and nearby repair shops.</p>
@@ -459,7 +468,7 @@ img { max-width: 100%; }
           </div>
         </article>
         <article class="card player">
-          <div class="player-top"><span class="num" aria-hidden="true">05</span><span class="kicker">Kappa Theta Pi · Team project</span><h3>Sports2You</h3></div>
+          <div class="player-top"><span class="num" aria-hidden="true">06</span><span class="kicker">Kappa Theta Pi · Developer</span><h3>Sports2You</h3></div>
           <div class="player-body">
             <div class="big"><div><b>3</b><small>Clients: web, mobile, API</small></div><div><b>14</b><small>Mobile screens</small></div><div><b>5</b><small>UTD courts</small></div></div>
             <p>Court reservation app for UT Dallas students across the Activity Center and Rec West. A six-step booking flow enforces real court rules, like player minimums for half-court basketball and soccer. Students can create public or private pickup games, let others join, and review completed games. Runs on a React and Vite web app, a React Native (Expo) mobile app, and an Express API on MongoDB Atlas with JWT auth.</p>
@@ -468,7 +477,7 @@ img { max-width: 100%; }
           </div>
         </article>
         <article class="card player">
-          <div class="player-top"><span class="num" aria-hidden="true">06</span><span class="kicker">HackUTD 2025 · Nov 2025</span><h3>AutoMate</h3></div>
+          <div class="player-top"><span class="num" aria-hidden="true">07</span><span class="kicker">HackUTD 2025 · Nov 2025</span><h3>AutoMate</h3></div>
           <div class="player-body">
             <div class="big"><div><b>4</b><small>Pages built</small></div><div><b>2</b><small>Finance and lease modes</small></div><div><b>3</b><small>Lenders compared</small></div></div>
             <p>Car comparison web app for shopping a Toyota lineup, built by a team of four at HackUTD. Built the car filter page, side-by-side compare page, favorites, and a finance and lease calculator that adjusts rates by credit score, compares lender offers, and charts the cost breakdown. The team added AI natural-language search and a chat assistant.</p>
@@ -477,7 +486,7 @@ img { max-width: 100%; }
           </div>
         </article>
         <article class="card player">
-          <div class="player-top"><span class="num" aria-hidden="true">07</span><span class="kicker">HackAI 2026 · Mar 2026</span><h3>NovaLabs</h3></div>
+          <div class="player-top"><span class="num" aria-hidden="true">08</span><span class="kicker">HackAI 2026 · Developer</span><h3>NovaLabs</h3></div>
           <div class="player-body">
             <div class="big"><div><b>6</b><small>Student tools</small></div><div><b>2</b><small>Route modes, incl. accessible</small></div><div><b>4</b><small>Help-desk categories</small></div></div>
             <p>All-in-one UT Dallas student hub built at HackAI. A campus map computes shortest walking routes with Dijkstra over a building graph, with walking-time estimates and an accessible-route option. "Who Do I Ask" uses OpenAI to route a student's question to the right office: academic, financial, housing, or tech. Also includes a professor picker built on UTD Nebula course data, a degree planner, and a schedule view.</p>
@@ -549,6 +558,13 @@ img { max-width: 100%; }
     <section class="panel" id="film" role="tabpanel" aria-labelledby="tab-film" hidden>
       <div class="panel-head"><h2>Film Room</h2><span class="kicker">Design calls, broken down from the code</span></div>
       <div class="film">
+        <article class="card clip">
+          <span class="kicker">NorthBound · verification</span>
+          <h3>The old program is the judge</h3>
+          <p>A rewrite passes only when its output matches the original COBOL's recorded output exactly. On a mismatch, the explainer sends the real failing case back to the rewrite agent, for up to three attempts.</p>
+          <p class="why">Model-written tests can agree with model-written code. Recorded output from the real program can't be talked out of a bug, so it decides what ships.</p>
+          <code>agents/rewrite.py · agents/explainer.py</code>
+        </article>
         <article class="card clip">
           <span class="kicker">Bluebonnet · safety</span>
           <h3>Rules run before the model</h3>
@@ -850,7 +866,7 @@ img { max-width: 100%; }
 
   /* Skill scout */
   var usedBy = {
-    'Python': [['Bluebonnet Dental Agent', 'projects'], ['Crestline Inventory Agent', 'projects'], ['SafeBite', 'leadership'], ['LSTM research', 'research'], ['Darling Ingredients', 'experience'], ['PropSim pipeline', 'projects']],
+    'Python': [['NorthBound', 'projects'], ['Bluebonnet Dental Agent', 'projects'], ['Crestline Inventory Agent', 'projects'], ['SafeBite', 'leadership'], ['LSTM research', 'research'], ['Darling Ingredients', 'experience'], ['PropSim pipeline', 'projects']],
     'C++': [['PropSim engine', 'projects']],
     'Java': [['CarCare', 'projects'], ['Splitting', 'leadership']],
     'SQL': [['Darling Ingredients', 'experience'], ['PropSim', 'projects'], ['Tomorrow\'s Leaders Today', 'experience']],
@@ -858,7 +874,7 @@ img { max-width: 100%; }
     'PyTorch': [['LSTM research', 'research']],
     'NumPy': [['LSTM research', 'research']],
     'RAG': [['Bluebonnet Dental Agent', 'projects'], ['Kairos retrieval pipeline', 'experience']],
-    'LLM agents': [['Bluebonnet Dental Agent', 'projects'], ['Crestline Inventory Agent', 'projects']],
+    'LLM agents': [['NorthBound', 'projects'], ['Bluebonnet Dental Agent', 'projects'], ['Crestline Inventory Agent', 'projects']],
     'Chroma': [['Kairos retrieval pipeline', 'experience']],
     'Whisper': [['Bluebonnet Dental Agent', 'projects']],
     'Conformal prediction': [['LSTM research', 'research']],
